@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
-using namespace std;
 #include <bits/stdc++.h>
 
 using namespace std;
@@ -71,7 +70,6 @@ BigNum AddNums(BigNum Number1, BigNum Number2){
         cout << "ReversedNumber 2 == " << ReversedNumber2 << endl << "Number2 == " << Number2.val << endl;
 
 
-/*
         for (unsigned long long digit = 0; digit < LenResult; digit++){
                 int DigitOne = DigitToInt(Number1.val[(LenResult - digit) -1]);
                 int DigitTwo = DigitToInt(Number2.val[(LenResult - digit) -1]);
@@ -99,8 +97,6 @@ BigNum AddNums(BigNum Number1, BigNum Number2){
 
         BigNum Res;
         Res.val = Result;
-*/
-        BigNum Res;
 
 	return Res;
 }
