@@ -6,18 +6,29 @@
 using namespace std;
 
 string ReverseString(string str){
-        const unsigned long long SizeOfStr = sizeof(str);
+        const unsigned long long SizeOfStr = str.size();
 
-        char * StartPtr = &str[0];
-        char * EndPtr = StartPtr + (SizeOfStr) - 1;
+        unsigned long long StartIndex = 0;
+        unsigned long long EndIndex = SizeOfStr - 1;
 
-        cout << "Start ptr == " << StartPtr << endl << "EndPtr == " << EndPtr << endl;
+        while (StartIndex < EndIndex){
+                char temp = str[StartIndex];
+                str[StartIndex] = str[EndIndex];
+                str[EndIndex] = temp;
 
-        return "I FUCKING HATE CPP WITH ALL MY HEART, love you lot tho";
+                StartIndex++;
+                EndIndex--;
+        }
+
+        return str;
 }
 
 int DigitToInt(char Digit){
         return ((int) Digit) - 48;
+}
+
+char IntToDigit(int Integer){
+        return ((char) Integer) + 48;
 }
 
 string ConstructNString(unsigned long long N, char Character){
@@ -39,66 +50,30 @@ void InitNum(BigNum* PtrToNumber, string Value){
 }
 
 BigNum AddNums(BigNum Number1, BigNum Number2){
-	const unsigned long long LenNumber1 = StrLen(Number1.val);
-	const unsigned long long LenNumber2 = StrLen(Number2.val);
+	const unsigned long long LenNumber1 = Number1.val.size();
+	const unsigned long long LenNumber2 = Number2.val.size();
 	string Result;
         
-	printf("\n\nLenNumber1 = %llu\n\nLenNumber2 = %llu\n\n",LenNumber1,LenNumber2);
 
 	if (LenNumber1 == LenNumber2){
-		cout << "LenNumber1 is the same as LenNumber2" << endl;
 		Result = ConstructNString(LenNumber1,'0');
 	}
 	else if (LenNumber1 > LenNumber2){
-		cout << "LenNumber1 is bigger than LenNumber2" << endl;
 		Result = ConstructNString(LenNumber1,'0');
 	}
 	else{
-		cout << "LenNumber2 is bigger than LenNumber1" << endl;
 		Result = ConstructNString(LenNumber2,'0');
 	}
 
-        unsigned long long LenResult = StrLen(Result);
+        unsigned long long LenResult = Result.size();
 
-        int carry;
+        int carry = 0;
         int sum;
 
         string ReversedNumber1 = ReverseString(Number1.val);
         string ReversedNumber2 = ReverseString(Number2.val);
-
-        cout << "ReversedNumber 1 == " << ReversedNumber1 << endl << "Number1 == " << Number1.val << endl;
-        cout << "ReversedNumber 2 == " << ReversedNumber2 << endl << "Number2 == " << Number2.val << endl;
-
-
-        for (unsigned long long digit = 0; digit < LenResult; digit++){
-                int DigitOne = DigitToInt(Number1.val[(LenResult - digit) -1]);
-                int DigitTwo = DigitToInt(Number2.val[(LenResult - digit) -1]);
-                sum = DigitOne + DigitTwo;
-
-                if (sum > 9){
-                        carry = 1;
-                        sum = sum - 10;
-                }
-
-                cout << "digit 1: " << int(Number1.val[(LenResult - digit - 1)]) << endl;
-                cout << "digit 2: " << int(Number2.val[(LenResult - digit - 1)]) << endl;
-                cout << "sum = " << sum << endl;
-                cout << "carry = " << carry << endl;
-
-                Result[(LenResult - digit) - 1] = (char) sum;
-
-                if (carry == 1){
-                        Result[(LenResult - digit) - 1] = (char) (DigitToInt(Result[(LenResult - digit) - 1]) + 1);
-                        carry = 0;
-                }
-        }
-
-        cout << "Result is " << Result << endl;
-
-        BigNum Res;
-        Res.val = Result;
-
-	return Res;
+        
+        return Number1;
 }
 
 void PrintBigNum(BigNum Number){
@@ -114,5 +89,6 @@ int main(){
         InitNum(&TestNum2,"10000");
 
         BigNum x = AddNums(TestNum1,TestNum2);
+        
 	return 1;
 }
