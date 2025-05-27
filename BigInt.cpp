@@ -32,13 +32,20 @@ char IntToDigit(int Integer){
 }
 
 string ConstructNString(unsigned long long N, char Character){
-	if (N == 0) { return NULL; }
+	if (N == 0) { return ""; }
 
 	string Result;
 	for (unsigned long long i = 0; i < N; i++){
 		Result = Result + Character;
 	}
 	return Result;
+}
+
+string LeftPad(string str, unsigned long long n, char c){
+        string AddedContent = ConstructNString(n - str.size(),c);
+
+        AddedContent.append(str);
+        return AddedContent;
 }
 
 typedef struct{
@@ -56,13 +63,13 @@ BigNum AddNums(BigNum Number1, BigNum Number2){
         
 
 	if (LenNumber1 == LenNumber2){
-		Result = ConstructNString(LenNumber1,'0');
+		Result = ConstructNString(LenNumber1+1,'0');
 	}
 	else if (LenNumber1 > LenNumber2){
-		Result = ConstructNString(LenNumber1,'0');
+		Result = ConstructNString(LenNumber1+1,'0');
 	}
 	else{
-		Result = ConstructNString(LenNumber2,'0');
+		Result = ConstructNString(LenNumber2+1,'0');
 	}
 
         unsigned long long LenResult = Result.size();
@@ -73,6 +80,27 @@ BigNum AddNums(BigNum Number1, BigNum Number2){
         string ReversedNumber1 = ReverseString(Number1.val);
         string ReversedNumber2 = ReverseString(Number2.val);
         
+        ReversedNumber1 = LeftPad(ReversedNumber1,LenResult,'0');
+        ReversedNumber2 = LeftPad(ReversedNumber2,LenResult,'0');
+
+        cout << "ReversedNumber1 == " << ReversedNumber1 << " ReversedNumber2 = " << ReversedNumber2 << endl << "Result = " << Result << endl;
+
+        int DigitOne;
+        int DigitTwo;
+
+        for (unsigned long long digit = 0; digit < LenResult; digit++){
+                DigitOne = (DigitToInt(ReversedNumber1[digit]));
+                DigitTwo = (DigitToInt(ReversedNumber2[digit]));
+
+                cout << "DigitOne = " << DigitOne << " DigitTwo = " << DigitTwo << endl;
+
+                sum = DigitOne + DigitTwo;
+
+                if (sum > 10) { sum -= 10; carry = 1; }
+
+                cout << "sum = " << sum << " carry = " << carry << endl;
+        }         
+
         return Number1;
 }
 
@@ -86,7 +114,7 @@ int main(){
         BigNum TestNum2;
 
         InitNum(&TestNum1,"10000");
-        InitNum(&TestNum2,"10000");
+        InitNum(&TestNum2,"1000000");
 
         BigNum x = AddNums(TestNum1,TestNum2);
         
