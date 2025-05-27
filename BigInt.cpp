@@ -79,7 +79,9 @@ BigNum AddNums(BigNum Number1, BigNum Number2){
 
         string ReversedNumber1 = ReverseString(Number1.val);
         string ReversedNumber2 = ReverseString(Number2.val);
-        
+
+        cout << "ReversedNumber1 before padding == " << ReversedNumber1 << " ReversedNumber2 before padding == " << ReversedNumber2 << endl;
+
         ReversedNumber1 = LeftPad(ReversedNumber1,LenResult,'0');
         ReversedNumber2 = LeftPad(ReversedNumber2,LenResult,'0');
 
@@ -91,17 +93,15 @@ BigNum AddNums(BigNum Number1, BigNum Number2){
         for (unsigned long long digit = 0; digit < LenResult; digit++){
                 DigitOne = (DigitToInt(ReversedNumber1[digit]));
                 DigitTwo = (DigitToInt(ReversedNumber2[digit]));
+                
 
-                cout << "DigitOne = " << DigitOne << " DigitTwo = " << DigitTwo << endl;
+        }
 
-                sum = DigitOne + DigitTwo;
 
-                if (sum > 10) { sum -= 10; carry = 1; }
+        BigNum Res;
+        Res.val = ReverseString(Result);
 
-                cout << "sum = " << sum << " carry = " << carry << endl;
-        }         
-
-        return Number1;
+        return Res;
 }
 
 void PrintBigNum(BigNum Number){
@@ -113,10 +113,12 @@ int main(){
         BigNum TestNum1;
         BigNum TestNum2;
 
-        InitNum(&TestNum1,"10000");
-        InitNum(&TestNum2,"1000000");
+        InitNum(&TestNum1,"10900");
+        InitNum(&TestNum2,"1040000");
 
         BigNum x = AddNums(TestNum1,TestNum2);
-        
+                
+        cout << "x = " << x.val << endl;
+
 	return 1;
 }
