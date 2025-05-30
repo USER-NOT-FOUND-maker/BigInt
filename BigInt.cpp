@@ -70,6 +70,26 @@ BigInt AddNums(BigInt NumberOne,BigInt NumberTwo){
         BigInt Result;
         CreateBigint(&Result);
 
+        unsigned long long ResultSize = SIZEOFINT;
+
+        unsigned int *PtrNum1, *PtrNum2, *PtrResArr;
+
+        PtrNum1 = &NumberOne.ArrOfInts[0];
+        PtrNum2 = &NumberTwo.ArrOfInts[0];
+        PtrResArr = &Result.ArrOfInts[0];
+
+        while (true){
+                bool OverFlowResult = IsOverflow(*PtrNum1,*PtrNum2,'+');
+
+                if (OverFlowResult){
+                        unsigned int* TempResultArr = (unsigned int*) realloc(Result.ArrOfInts,(ResultSize * SIZEOFINT) + SIZEOFINT);
+
+                        if (TempResultArr == NULL) { throw runtime_error("something failed in memory allocation and we couldnt continue the program"); }
+
+                        Result.ArrOfInts = TempResultArr;
+                }
+        }
+
         return Result;
 }
 
@@ -81,37 +101,18 @@ void PrintBigintInfo(BigInt* NumberAddress){
 }
 
 int main(){
-        cout << "DISCLAIMER, USING 'SetBigIntVal' ONLY WORKS WHEN YOU PASS IN AN UNSIGNED INTEGER THAT FITS IN AN UNSIGNED INTEGER" << endl << endl << endl;
+        cout << "DISCLAIMER, USING 'SetBigIntVal' ONLY WORKS WHEN YOU PASS IN AN UNSIGNED INTEGER THAT FITS IN AN UNSIGNED INTEGER (wont error if it doesn't fit, will just overflow)" << endl << endl << endl;
 
         BigInt TestNum;
         BigInt TestNum2;
         CreateBigint(&TestNum);
         CreateBigint(&TestNum2);
 
-        SetBigIntVal(&TestNum,4250);
+        SetBigIntVal(&TestNum,0-1);
+
         SetBigIntVal(&TestNum2,4250);
 
-        cout << "Expected result is 0, result is " << CmpNums(TestNum,TestNum2) << endl;
-
-
-        SetBigIntVal(&TestNum,0);
-        SetBigIntVal(&TestNum2,0);
-
-
-        cout << "Expected result is 0, result is " << CmpNums(TestNum,TestNum2) << endl;
-
-        SetBigIntVal(&TestNum,5);
-        SetBigIntVal(&TestNum2,10);
-        
-        cout << "Expected result is 1, result is " << CmpNums(TestNum,TestNum2) << endl;
-        
-        SetBigIntVal(&TestNum,10);
-        SetBigIntVal(&TestNum2,5);
-
-
-        cout << "Expected result is -1, result is " << CmpNums(TestNum,TestNum2) << endl;
-        
-
+        AddNums(TestNum,TestNum2);
 
         return 69;
 }
