@@ -1,118 +1,81 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <string>
 #include <iostream>
-#include <bits/stdc++.h>
-#include <stdbool.h>
+
+#define uint64 unsigned long long
+#define uint32 unsigned int
+#define int32 int
+#define int64 long long
 
 using namespace std;
 
-#define SIZEOFINT 4
-#define MAXINTSIZE 4294967295
-
-// we WILL be using little endian
-
-typedef struct{
-        unsigned int *ArrOfInts;
-        unsigned long long NumberOfDigits;
-        string representation;
+typedef struct {
+        string Number;
+        uint64 Digits;
+        bool initialised;
 } BigInt;
 
-char IntToDigt(int digit){
-        return ((char) digit) + 48;
+void InitBigint(BigInt* NumberAddress);
+void SetBigintVal(BigInt* NumberAddress, string NewVal);
+BigInt AddNums(BigInt Num1, BigInt Num2);
+BigInt MulNumsULL(BigInt Number, uint64 multiplier);
+BigInt PowerNumsULL(BigInt Number, uint64 exponent);
+BigInt PowerNumsBIGINT(BigInt Num1,BigInt Num2);
+BigInt MulNumsBIGINT(BigInt Num1,BigInt Num2);
+int32 DigitToInt(char Digit);
+char IntToDigit(int32 Int);
+
+int32 DigitToInt(char Digit) { return ((int) Digit) - 48;}
+char IntToDigit(int32 Int) { return ((char) Int) + 48;}
+
+
+void PrintBigint(BigInt* NumAddress){
+        if(!NumAddress->initialised) { throw runtime_error("shouldve thought about that before trying to use an uninitialised number");}
+        cout << NumAddress->Number;
 }
 
-void DisplayIntArr(unsigned int arr[], unsigned long long length){
-        cout << "[";
-        for (unsigned long long i = 0; i < length; i++){
-                cout << arr[i];
-                if (i < (length - 1)){
-                        cout << ", ";
-                }
-        }
-        cout << "]" << endl;
-}
+int32 CmpNums(BigInt Num1, BigInt Num2){
+        if(!(Num1.initialised && Num2.initialised)) { throw runtime_error("shouldve thought about that before trying to use an uninitialised number");}
 
-bool IsOverflow(unsigned int Num1, unsigned int Num2, char op){
-        if ( op != '+' && op != '-') { cout << "entered op was " << op << endl << endl; throw runtime_error("fucking retard put in a valid op next time (+ or -)"); }
+        if (Num1.Digits > Num2.Digits) { return -1; }
+        else if (Num2.Digits > Num1.Digits) { return 1; }
 
-        unsigned int Result;
-
-        if (op == '+') { Result = Num1 + Num2; return Result < Num1; }
-        else { Result = Num1 - Num2; return Result > Num1; }
-}
-
-void CreateBigint(BigInt* NumberAddress){
-        NumberAddress->ArrOfInts = (unsigned int *) malloc(SIZEOFINT);
-        NumberAddress->NumberOfDigits = 1;
-        NumberAddress->representation = "0";
-        NumberAddress->ArrOfInts[0] = 0;
-}
-
-void SetBigIntVal(BigInt * PointerToNum, unsigned int Num){
-        free(PointerToNum->ArrOfInts);
-        PointerToNum->NumberOfDigits = 1;
-        PointerToNum->ArrOfInts = (unsigned int*) malloc(SIZEOFINT);
-        PointerToNum->ArrOfInts[0] = Num;
-}
-
-int CmpNums(BigInt NumberOne,BigInt NumberTwo){
-        if (NumberOne.NumberOfDigits > NumberTwo.NumberOfDigits) { return -1; }
-        else if (NumberOne.NumberOfDigits < NumberTwo.NumberOfDigits) { return 1; }
-
-        const unsigned long long NumberOfDigits = NumberOne.NumberOfDigits - 1;
-
-        if (NumberOne.ArrOfInts[NumberOfDigits] == NumberTwo.ArrOfInts[NumberOfDigits]) { return 0; }
-        else if (NumberOne.ArrOfInts[NumberOfDigits] > NumberTwo.ArrOfInts[NumberOfDigits]) { return -1; }
-        else { return 1; }
-}
-
-BigInt AddNums(BigInt NumberOne,BigInt NumberTwo){
-        BigInt Result;
-        CreateBigint(&Result);
-
-        unsigned long long ResultSize = SIZEOFINT;
-
-        unsigned int *PtrNum1, *PtrNum2, *PtrResArr;
-
-        PtrNum1 = &NumberOne.ArrOfInts[0];
-        PtrNum2 = &NumberTwo.ArrOfInts[0];
-        PtrResArr = &Result.ArrOfInts[0];
-
-        while (true){
-                bool OverFlowResult = IsOverflow(*PtrNum1,*PtrNum2,'+');
-
-                if (OverFlowResult){
-                        unsigned int* TempResultArr = (unsigned int*) realloc(Result.ArrOfInts,(ResultSize * SIZEOFINT) + SIZEOFINT);
-
-                        if (TempResultArr == NULL) { throw runtime_error("something failed in memory allocation and we couldnt continue the program"); }
-
-                        Result.ArrOfInts = TempResultArr;
-                }
+        for (uint32 i = 0; i < Num1.Digits; i++){
+                if (DigitToInt(Num1.Number[i]) > DigitToInt(Num2.Number[i])) { return -1; }
+                else if (DigitToInt(Num2.Number[i]) > DigitToInt(Num1.Number[i])) { return 1; }
         }
 
-        return Result;
+        return 0;
 }
 
-void PrintBigintInfo(BigInt* NumberAddress){
-        cout << "Integer array = ";
-        DisplayIntArr(NumberAddress->ArrOfInts,NumberAddress->NumberOfDigits);
-        cout << "\nInteger array pointer = " << NumberAddress->ArrOfInts;
-        cout << "\n\nNumberOfDigits = " << NumberAddress->NumberOfDigits << "\n\nREPRESENTATION = " << NumberAddress->representation << endl << endl;
+const char DIGITS[11] = "0123456789";
+
+bool IsInCharray(char arr[],char val){
+        const uint64 len = sizeof(arr);
+
+        for (uint64 i = 0; i < len; i++) { if (arr[i] == val){ return true;}}
+        return false;
+}
+
+void InitBigint(BigInt* NumberAddress){
+        NumberAddress->Number = "0";
+        NumberAddress->Digits = 0;
+        NumberAddress->initialised = true;
+}
+
+void SetBigintVal(BigInt* NumberAddress, string NewVal){
+        if(!NumberAddress->initialised) { throw runtime_error("shouldve thought about that before trying to use an uninitialised number");}
+       
+        for (uint64 i = 0; i < NewVal.length(); i++) { if (!IsInCharray(DIGITS,NewVal[i])) { throw runtime_error("string was NOT a numerical value (retard), negative numbers and floats not supported")}}
+
+        NumberAddress->Number = NewVal;
+        NumberAddress->Digits = NewVal.length();
 }
 
 int main(){
-        cout << "DISCLAIMER, USING 'SetBigIntVal' ONLY WORKS WHEN YOU PASS IN AN UNSIGNED INTEGER THAT FITS IN AN UNSIGNED INTEGER (wont error if it doesn't fit, will just overflow)" << endl << endl << endl;
-
         BigInt TestNum;
-        BigInt TestNum2;
-        CreateBigint(&TestNum);
-        CreateBigint(&TestNum2);
 
-        SetBigIntVal(&TestNum,0-1);
+        InitBigint(&TestNum);
 
-        SetBigIntVal(&TestNum2,4250);
-
-        AddNums(TestNum,TestNum2);
-
-        return 69;
+        SetBigintVal(&TestNum,"100000");
+        return 69420;
 }
