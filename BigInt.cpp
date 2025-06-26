@@ -7,149 +7,96 @@ using namespace std;
 #define uint32 unsigned int
 #define int32 int
 #define int64 long long
+#define SIZEOFINT 4
+#define MAXINTSIZE 4294967295
 
 typedef struct{
-        string Number;
-        uint64 Digits;
+        uint32* arr;
+        uint64 Chunks;
         bool initialised;
 } BigInt;
 
-int32 DigitToInt(char Digit) { return ((int) Digit) - 48;}
-char IntToDigit(int32 Int) { return ((char) Int) + 48;}
-
-
-void PrintBigint(BigInt* NumAddress){
-        if(!NumAddress->initialised) { throw runtime_error("shouldve thought about that before trying to use an uninitialised number");}
-        cout << NumAddress->Number;
+void InitBigint(BigInt* Number, uint32 num){
+        Number->arr = (uint32*) malloc(SIZEOFINT);
+        Number->arr[0] = num;
+        Number->Chunks = 1;
+        Number->initialised = true;
 }
 
-int32 CmpNums(BigInt Num1, BigInt Num2){
-        if(!(Num1.initialised && Num2.initialised)) { throw runtime_error("shouldve thought about that before trying to use an uninitialised number");}
+void PrintIntArr(uint32* arr, uint64 len){
+        cout << "[";
+        for (uint64 i = 0; i < len; i++){
+                cout << arr[i];
+                if (len - 1 == i){
+                        break;
+                }
+                cout << ", ";
+        }
+        cout << "]";
+}
 
-        if (Num1.Digits > Num2.Digits) { return -1; }
-        else if (Num2.Digits > Num1.Digits) { return 1; }
+void PrintBigint(BigInt* num){
+        PrintIntArr(num->arr,num->Chunks);
+}
 
-        for (uint32 i = 0; i < Num1.Digits; i++){
-                if (DigitToInt(Num1.Number[i]) > DigitToInt(Num2.Number[i])) { return -1; }
-                else if (DigitToInt(Num2.Number[i]) > DigitToInt(Num1.Number[i])) { return 1; }
+bool IsOverflow(uint32 Num1, uint32 Num2, char op){
+        if (op != '+' && op != '-' || (Num1 == 0 || Num2 == 0) && (op != '-' && Num1 != 0)){
+                return false;
         }
 
-        return 0;
-}
-
-const char DIGITS[11] = "0123456789";
-
-bool IsInCharray(char arr[],char val){
-        const uint64 len = sizeof(arr);
-
-        for (uint64 i = 0; i < len; i++) { if (arr[i] == val){ return true;}}
-        return false;
-}
-
-void InitBigint(BigInt* NumberAddress){
-        NumberAddress->Number = "0";
-        NumberAddress->Digits = 0;
-        NumberAddress->initialised = true;
-}
-
-void SetBigintVal(BigInt* NumberAddress, string NewVal){
-        if(!NumberAddress->initialised) { throw runtime_error("shouldve thought about that before trying to use an uninitialised number");}
-       
-        NumberAddress->Number = NewVal;
-        NumberAddress->Digits = NewVal.length();
-}
-
-string ConstructNString(char c, uint64 n){
-        string str;
-        str.resize(n);
-        for (uint64 i = 0; i < n; i++){
-                str[i] = c;
+        if (op == '+'){
+                return ((Num1 + Num2) < Num1);
         }
-        return str;
+        else{
+                return ((Num1 - Num2) > Num1);
+        }
 }
 
-string LeftPad(string str, char c, uint64 n){
-        if (n < str.length()) { return str; }
+BigInt AddNums(BigInt NumOne, BigInt NumTwo){
+        uint32* PtrToNumOne = &NumOne.arr[0];
+        uint32* PtrToNumTwo = &NumTwo.arr[0];
 
-        string Padding = ConstructNString(c,n - str.length());
+        BigInt Sum;
+        InitBigint(&Sum,0);
+        bool isOverflow;
 
-        return Padding + str;
-}
-
-string GetSubstring(string s, uint64 start, uint64 end, uint64 step){
-        string SubS= "";
-
-        if(start > end && step > 0) { return s; }
-
-        if (start < 0 || start > s.size()) { return s; }
-
-        if (end < 0 || end > s.size()) { return s; }
-
-        for (uint64 i = start; i != end; i += step) { if (i > end && step > 0 || i < end && step < 0){ return SubS; } SubS += s[i]; }
-
-        return SubS;
-}
-
-BigInt AddNums(BigInt NumberOne, BigInt NumberTwo){
-        const uint64 LenNumberOne = NumberOne.Number.length();
-        const uint64 LenNumberTwo = NumberTwo.Number.length();
-
-        string Result;
-        uint64 LenRes;
-
-        string CPNumberOne;
-        string CPNumberTwo;
-
-        if (LenNumberOne >= LenNumberTwo) { Result = ConstructNString('0',LenNumberOne + 1); LenRes = LenNumberOne + 1; CPNumberTwo = LeftPad(NumberTwo.Number,'0',LenNumberOne); CPNumberOne = NumberOne.Number; }
-        else { Result = ConstructNString('0',LenNumberTwo + 1); LenRes = LenNumberTwo + 1; CPNumberOne = LeftPad(NumberOne.Number,'0',LenNumberTwo); CPNumberTwo = NumberTwo.Number; }
-        
-        uint32 Carry = 0;
-
-        cout << "Num1 = " << CPNumberOne << endl << "Num2 = " << CPNumberTwo << endl;
-
-        for (uint64 Index = LenRes - 1; Index--; Index > 0 ){
-                uint32 DigitOne,DigitTwo,Total;
+        do{
+                isOverflow = IsOverflow(*PtrToNumOne,*PtrToNumTwo,'+');
                 
-                DigitOne = DigitToInt(CPNumberOne[Index]);
-                DigitTwo = DigitToInt(CPNumberTwo[Index]);
-
-                Total = DigitOne + DigitTwo + Carry;
-                        
-                Carry = 0;
-
-                if (Total > 9) {
-                        Carry = 1;
-                        Total -= 10;
+                if (isOverflow) {
+                        cout << "was overflow \n";
+                        uint32 OverflowAmount = *PtrToNumOne + *PtrToNumTwo;
+                        uint32 AmountUntilOverflow = MAXINTSIZE - *PtrToNumOne;
+                        Sum.arr = (uint32* ) realloc(Sum.arr,Sum.Chunks + SIZEOFINT);
+                        Sum.Chunks += 1;
+                        Sum.arr[Sum.Chunks-2] = AmountUntilOverflow;
+                        uint32 total = OverflowAmount;
+                        Sum.arr[Sum.Chunks-1] = OverflowAmount;
+                        continue;
                 }
         
-                Result[Index] = IntToDigit(Total);
-        }
-        
-        if (Carry == 1){   
-                Result = LeftPad(Result,IntToDigit(Carry),LenRes + 1); 
-        }
+                Sum.arr[Sum.Chunks - 1] = *PtrToNumOne + *PtrToNumTwo;
 
-        cout << "Result = " << Result << endl;
+                PrintBigint(&Sum);
+                
+                if (PtrToNumOne != &NumOne.arr[NumOne.Chunks-1]){
+                        PtrToNumOne++;
+                }
+                if (PtrToNumTwo != &NumTwo.arr[NumTwo.Chunks-1]){
+                        PtrToNumTwo++;
+                }
 
-        BigInt ReturnNumber;
+        } while (PtrToNumOne != &NumOne.arr[NumOne.Chunks] && PtrToNumTwo != &NumTwo.arr[NumTwo.Chunks]);
 
-        InitBigint(&ReturnNumber);
-        SetBigintVal(&ReturnNumber,GetSubstring(Result,0,Result.size()-1,1));
-
-        return ReturnNumber;
+        PrintBigint(&Sum);
+        return Sum;
 }
 
 int main(){
-        BigInt TestNum;
-        BigInt TestNum2;
+        BigInt TestNumber;
+        InitBigint(&TestNumber,4250);
+        
+        uint32 OverFlownum = 0;
 
-        InitBigint(&TestNum);
-        InitBigint(&TestNum2);
-
-        SetBigintVal(&TestNum,"10");
-        SetBigintVal(&TestNum2,"10");
-
-        BigInt Result = AddNums(TestNum,TestNum2);
-        cout << "TestNum + TestNum2 = " << Result.Number << endl;
-        return 69420;
+        AddNums(TestNumber,TestNumber);
 }
