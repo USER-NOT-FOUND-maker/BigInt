@@ -64,20 +64,19 @@ BigInt AddNums(BigInt NumOne, BigInt NumTwo){
                 isOverflow = IsOverflow(*PtrToNumOne,*PtrToNumTwo,'+');
                 
                 if (isOverflow) {
-                        cout << "was overflow \n";
                         uint32 OverflowAmount = *PtrToNumOne + *PtrToNumTwo;
                         uint32 AmountUntilOverflow = MAXINTSIZE - *PtrToNumOne;
+
                         Sum.arr = (uint32* ) realloc(Sum.arr,Sum.Chunks + SIZEOFINT);
                         Sum.Chunks += 1;
-                        Sum.arr[Sum.Chunks-2] = AmountUntilOverflow;
-                        uint32 total = OverflowAmount;
+
+                        Sum.arr[Sum.Chunks-2] = MAXINTSIZE;
                         Sum.arr[Sum.Chunks-1] = OverflowAmount;
                         continue;
                 }
         
                 Sum.arr[Sum.Chunks - 1] = *PtrToNumOne + *PtrToNumTwo;
 
-                PrintBigint(&Sum);
                 
                 if (PtrToNumOne != &NumOne.arr[NumOne.Chunks-1]){
                         PtrToNumOne++;
@@ -86,17 +85,33 @@ BigInt AddNums(BigInt NumOne, BigInt NumTwo){
                         PtrToNumTwo++;
                 }
 
-        } while (PtrToNumOne != &NumOne.arr[NumOne.Chunks] && PtrToNumTwo != &NumTwo.arr[NumTwo.Chunks]);
+        } while (PtrToNumOne != &NumOne.arr[NumOne.Chunks-1] && PtrToNumTwo != &NumTwo.arr[NumTwo.Chunks-1]);
 
-        PrintBigint(&Sum);
         return Sum;
 }
 
 int main(){
         BigInt TestNumber;
-        InitBigint(&TestNumber,4250);
-        
-        uint32 OverFlownum = 0;
+        InitBigint(&TestNumber,0-2);
 
-        AddNums(TestNumber,TestNumber);
+        BigInt TestNumberTwo;
+        InitBigint(&TestNumberTwo,4250);
+
+        TestNumberTwo = AddNums(TestNumber,TestNumber);
+        PrintBigint(&TestNumberTwo);
+
+        BigInt a,b,t;
+        InitBigint(&a,0);
+        InitBigint(&b,1);
+        InitBigint(&t,0);
+
+/*
+        for (uint32 i = 0; i < (uint32) 0-1; i++){
+                t = a;
+                a = b;
+                b = AddNums(b,t);
+                cout << "b is ";
+                PrintBigint(&b);
+        }
+*/
 }
