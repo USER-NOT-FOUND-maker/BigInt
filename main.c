@@ -12,6 +12,15 @@ typedef struct{
 	char* end; // this stores what the address of the ending digit of the number is
 } num;
 
+int CtoD(char n){
+	return (int) n - INTSCIIVAL;
+}
+
+char DtoC(UINT32 d){
+	if (d > 9) { return; }
+	return (char) d + INTSCIIVAL;
+}
+
 void init(num* addressNum){
 	addressNum->number = malloc(2);
 	(addressNum->number[0]) = '0';
@@ -175,7 +184,7 @@ num addNums(num NOne, num NTwo){
 		leftPad(&NOne.number,'0',NOne.digits - Strlen(NOne.number),true);
 	}
 	
-	int carry; // stores the number used to carry in addition
+	int carry = 0; // stores the number used to carry in addition
 	char digitOne; // stores the character digit of the first number
 	char digitTwo; // stores the character digit of the second number
 	int sum; // stores the result of adding digitOneN and digitTwoN
@@ -193,30 +202,38 @@ num addNums(num NOne, num NTwo){
 	char* res = malloc(len + 1); // stores the result of the addition, +1 is needed to account for carries in the final digit addition
 	char* resI = res;
 
+	printf("\nthe 2 numbers that will actually be added are\n%s\n%s\n---",NOneCP,NTwoCP);
+
 	for (UINT32 i = 0; i < len; i++){
 		digitOne = NOneCP[i];
 		digitTwo = NTwoCP[i];
 
-		digitOneN = (int) digitOne - INTSCIIVAL;
-		digitTwoN = (int) digitTwo - INTSCIIVAL;
+		digitOneN = CtoD(digitOne);
+		digitTwoN = CtoD(digitTwo);
 		
-		printf("\ndigitOne = %c\ndigitTwo = %c\ndigitOneN = %d\ndigitTwoN = %d\n",digitOne,digitTwo,digitOneN,digitTwoN);
+//		printf("\ndigitOne = %c\ndigitTwo = %c\ndigitOneN = %d\ndigitTwoN = %d\n",digitOne,digitTwo,digitOneN,digitTwoN);
 
 		sum = digitOneN + digitTwoN;
 
 		if (sum > 9) { sum -= 10; carry = 1; }
+		else { carry = 0; }
 
-		*(resI + i) = (char) (sum + carry + INTSCIIVAL);
-		printf("\nresI + i (dereferenced) = %c",*(resI + i));
-		printf("\n(char) sum + carry = %c",(char) (sum + carry));
-		printf("\nin the loop, res = %s",res);
+		if (carry == 1) { *(resI + i + 1) = DtoC(CtoD(*(res+i+1) + carry)); }
+		*(resI + i) = DtoC(sum);
 
-		carry = 0;
+//		printf("\nresI + i (dereferenced) = %c",*(resI + i));
+//		printf("\n(char) sum + carry = %c",(char) (sum + carry + INTSCIIVAL));
+//		printf("\nin the loop, res = %s",res);
 	}
+	
+	if (carry == 1) { *(resI + len) = DtoC(carry + sum); }
+	
 	res = reverseString(res);
+	num result;
+	init(&result);
+	setNumVal(&result,res);
 
-	printf("\n%s\n",res);
-
+	return result;
 }
 
 int main(){
@@ -225,10 +242,11 @@ int main(){
 	num testNum2;
 	init(&testNum2);
 	
-	setNumVal(&testNum,"10000");
-	setNumVal(&testNum2,"100000000");
+	setNumVal(&testNum,"8");
+	setNumVal(&testNum2,"12");
 
-	addNums(testNum,testNum2);
+	testNum = addNums(testNum,testNum2);
+	printNum(testNum);
 
 	return 0;
 }
