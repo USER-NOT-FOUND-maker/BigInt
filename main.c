@@ -88,30 +88,30 @@ bool sanityCheck(num* number){
 	return true;
 }
 
-void leftPad(char* str, char pad, UINT32 n){
+void leftPad(char** str, char pad, UINT32 n,bool guard){
 	if (n == 0) { return; }
+	if ((int) pad < 32 && guard) { printf("\ntriggered check for printability\n"); return; }
 
-	char* padding = malloc(n + Strlen(str) + 1);
+	char* strcp = malloc(Strlen(*str) + 1);
+	strcpy(strcp,*str);
+	*str = malloc(Strlen(*str) + 1);
 
-	const UINT32 len = Strlen(str);
+	char* padding = malloc(n + Strlen(*str) + 1);
+
+	const UINT32 len = Strlen(*str);
 
 	for (UINT32 i = 0; i < n; i++){
 		*(padding + i) = pad;
 	}
 	
-	printf("\nafter making the padding the pad is %s",padding);
-	
-	strcat(padding,str);
-	*str = *padding;
-/*
-	for (UINT32 i = n; i < n + len; i++){
-		*(res + i) = *index;
-		index++;
-	}
+	*(padding + 1 + len + n) = '\0'; // have to manually set the null terminator here >.<
 
-	*index++ = '\0';
-*/
-	printf("\nthe new string is %s",str);
+	*str = realloc(*str,n + len + 1);
+
+	strcat(padding,strcp);
+	strcpy(*str,padding);	
+	free(padding);
+	free(strcp);
 }
 
 num addNums(num NOne, num NTwo){
@@ -124,9 +124,5 @@ num addNums(num NOne, num NTwo){
 int main(){
 	num testNum;
 	init(&testNum);
-	leftPad("hello",'o',5);
-	leftPad("25",'0',10);
-	leftPad("computing",'w',1);
-
 	return 0;
 }
