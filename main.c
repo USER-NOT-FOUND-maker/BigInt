@@ -258,7 +258,16 @@ num addNums(num NOne, num NTwo){
 //		printf("\nCtoD(*(resI+i)) = %d",CtoD(*(resI+i)));
 //		printf("\ntotal = %d\n",total);
 		
-		if (total == 10) { total = 0; }
+		if (total == 10) { total = 0; 
+			int inc;
+			while (*(resI+i+inc) == '9'){
+				*(resI+i+inc) = '0';
+				inc++;
+			}
+			int tmp = CtoD(*(resI+i+inc));
+			tmp += 1;
+			*(resI+i+inc) = DtoC(tmp);
+		}
 
 		*(resI+i) = DtoC(total);
 		*(resI+i+1) = DtoC(carry);
@@ -299,6 +308,27 @@ num addNums(num NOne, num NTwo){
 	return result;
 }
 
+num experimentalAddNums(num NOne,num NTwo){ // THIS IS JUST AN EXPERIMENTAL MODEL, further deets below
+	// add nums js annoying me so im thinking of how i might rewrite it
+
+	if (NOne.digits > NTwo.digits){
+		NTwo.digits = NOne.digits;
+		NTwo.number = realloc(NTwo.number,NTwo.digits);
+		leftPad(&NTwo.number,'0',NTwo.digits - Strlen(NTwo.number),true);
+	}
+	else if (NOne.digits < NTwo.digits){
+		NOne.digits = NTwo.digits;
+		NOne.number = realloc(NOne.number,NOne.digits);
+		leftPad(&NOne.number,'0',NOne.digits - Strlen(NOne.number),true);
+	}
+
+	num resultNumber; // this stores ALL the information about the number
+	init(&resultNumber);
+	resultNumber.number = realloc(resultNumber.number,NOne.digits + 1);
+
+	return NOne;
+}
+
 void incrementionForever(){
 	num incremented;
 	init(&incremented);
@@ -328,7 +358,7 @@ int main(){
 	setNumVal(&testNum,"99");
 	setNumVal(&testNum2,"1");
 
-	testNum = addNums(testNum,testNum2);
+	testNum = experimentalAddNums(testNum,testNum2);
 	
 	printf("\ntestNum is ");
 	printNum(testNum);
