@@ -173,6 +173,32 @@ num addNums(num NOne, num NTwo){
 
 	if (!(sanityCheck(&NOne) && sanityCheck(&NTwo))) { return; }
 
+	if (NOne.digits == 1 && NTwo.digits == 1){ // this is a special exception, we have to handle this ourselves
+		int numOne = CtoD(*NOne.number);
+		int numTwo = CtoD(*NTwo.number);
+
+		if ((numOne + numTwo) < 10){
+			num res;
+			init(&res);
+			char tot = DtoC(numOne + numTwo);
+			*(res.number) = tot; // just SEEMS better than using my shitty function
+			return res;
+		}
+		else {
+			num res;
+			init(&res);
+			res.number = realloc(res.number,3);
+			char *numtos = malloc(3);
+			*numtos = '1';
+			int tot = (numOne + numTwo) - 10;
+			*(numtos + 1) = DtoC(tot);
+			setNumVal(&res,numtos);
+			free(numtos);
+			return res;
+		}
+
+	}
+
 	if (NOne.digits > NTwo.digits){
 		NTwo.digits = NOne.digits;
 		NTwo.number = realloc(NTwo.number,NTwo.digits + 1);
@@ -190,6 +216,8 @@ num addNums(num NOne, num NTwo){
 	int sum; // stores the result of adding digitOneN and digitTwoN
 	int digitOneN; // digitOne but integer
 	int digitTwoN; // digitTwo but integer
+	int total;
+	bool addedDigit; // stores whether or not the last digit was used up
 
 	char* NOneCP = malloc(NOne.digits);
 	char* NTwoCP = malloc(NTwo.digits);
@@ -201,8 +229,9 @@ num addNums(num NOne, num NTwo){
 	const UINT32 len = Strlen(NOneCP);
 	char* res = malloc(len + 1); // stores the result of the addition, +1 is needed to account for carries in the final digit addition
 	char* resI = res;
+	*resI = '0'; // yes this line is necessary, otherwise CtoD defaults to 0, 0-48 = biiiiiiiiiiig problems for us
 
-	printf("\nthe 2 numbers that will actually be added are\n%s\n%s\n---",NOneCP,NTwoCP);
+//	printf("\nthe 2 numbers that will actually be added are\n%s\n%s\n---",NOneCP,NTwoCP);
 
 	for (UINT32 i = 0; i < len; i++){
 		digitOne = NOneCP[i];
@@ -211,42 +240,98 @@ num addNums(num NOne, num NTwo){
 		digitOneN = CtoD(digitOne);
 		digitTwoN = CtoD(digitTwo);
 		
-//		printf("\ndigitOne = %c\ndigitTwo = %c\ndigitOneN = %d\ndigitTwoN = %d\n",digitOne,digitTwo,digitOneN,digitTwoN);
+//		printf("\ndigitOneN = %d\ndigitTwoN = %d\n",digitOneN,digitTwoN);
 
 		sum = digitOneN + digitTwoN;
 
 		if (sum > 9) { sum -= 10; carry = 1; }
-		else { carry = 0; }
+		
+//		printf("sum = %d\ncarry = %d",sum,carry);
 
-		if (carry == 1) { *(resI + i + 1) = DtoC(CtoD(*(res+i+1) + carry)); }
-		*(resI + i) = DtoC(sum);
+// error is most CERTAINLY here mud
 
+		// js make a total variable to store the sum of "sum" and resI+i
+		
+		int total = sum + CtoD(*(resI+i));
+//		printf("\nCtoD(*(resI+i)) = %d",CtoD(*(resI+i)));
+//		printf("\ntotal = %d\n",total);
+		*(resI+i) = DtoC(total);
+
+		*(resI+i+1) = DtoC(carry);
+		
+		carry = 0;
+
+//		printf("\nres = %s",res);
+		
+//		printf("\n\n\n");
+		
 //		printf("\nresI + i (dereferenced) = %c",*(resI + i));
 //		printf("\n(char) sum + carry = %c",(char) (sum + carry + INTSCIIVAL));
-//		printf("\nin the loop, res = %s",res);
+//  	printf("\nin the loop, res = %s",res);
 	}
-	
-	if (carry == 1) { *(resI + len) = DtoC(carry + sum); }
-	
+
 	res = reverseString(res);
+	resI = res;
+
+	if (carry == 1) { *(resI + len + 1) = DtoC(carry); }
+	
+	if (*(resI) == '0' && NOne.digits > 1) {
+		char* tmpRes = malloc(NOne.digits);
+		strcpy(tmpRes,resI+1);
+		res = realloc(res,NOne.digits-1);
+		strcpy(res,tmpRes);
+		free(tmpRes);
+		addedDigit = false;
+	}
+	else { addedDigit = true; }
+
+//	printf("\nactual answer is %s\n",res);
+
 	num result;
 	init(&result);
 	setNumVal(&result,res);
+	
+	free(res);
 
 	return result;
 }
 
+void incrementionForever(){
+	num incremented;
+	init(&incremented);
+	setNumVal(&incremented,"0");
+	num incrementer;
+	init(&incrementer);
+	setNumVal(&incrementer,"1");
+
+	while (true) {
+		printf("\nadding together ");
+		printNum(incremented);
+		printf(" and ");
+		printNum(incrementer);
+		printf(" gave ");
+		incremented = addNums(incremented,incrementer);
+		printNum(incremented);
+	}
+}
+
 int main(){
+
 	num testNum;
 	init(&testNum);
 	num testNum2;
 	init(&testNum2);
 	
-	setNumVal(&testNum,"8");
-	setNumVal(&testNum2,"12");
+	setNumVal(&testNum,"99");
+	setNumVal(&testNum2,"2");
 
 	testNum = addNums(testNum,testNum2);
+	
+	printf("\ntestNum is ");
 	printNum(testNum);
+	printf("\n");
+
+//	incrementionForever();
 
 	return 0;
 }
