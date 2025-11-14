@@ -230,10 +230,12 @@ num addNums(num NOne, num NTwo){
 	char* res = malloc(len + 1); // stores the result of the addition, +1 is needed to account for carries in the final digit addition
 	char* resI = res;
 	*resI = '0'; // yes this line is necessary, otherwise CtoD defaults to 0, 0-48 = biiiiiiiiiiig problems for us
+	*(resI+1) = '0'; // this too bro 
 
 //	printf("\nthe 2 numbers that will actually be added are\n%s\n%s\n---",NOneCP,NTwoCP);
 
 	for (UINT32 i = 0; i < len; i++){
+		*(resI + i + 1) = '0'; // honestly, im just trying anything here
 		digitOne = NOneCP[i];
 		digitTwo = NTwoCP[i];
 
@@ -255,16 +257,17 @@ num addNums(num NOne, num NTwo){
 		int total = sum + CtoD(*(resI+i));
 //		printf("\nCtoD(*(resI+i)) = %d",CtoD(*(resI+i)));
 //		printf("\ntotal = %d\n",total);
-		*(resI+i) = DtoC(total);
-
-		*(resI+i+1) = DtoC(carry);
 		
+		if (total == 10) { total = 0; }
+
+		*(resI+i) = DtoC(total);
+		*(resI+i+1) = DtoC(carry);
+
 		carry = 0;
 
 //		printf("\nres = %s",res);
 		
-//		printf("\n\n\n");
-		
+//		printf("\n\n\n");	
 //		printf("\nresI + i (dereferenced) = %c",*(resI + i));
 //		printf("\n(char) sum + carry = %c",(char) (sum + carry + INTSCIIVAL));
 //  	printf("\nin the loop, res = %s",res);
@@ -299,12 +302,12 @@ num addNums(num NOne, num NTwo){
 void incrementionForever(){
 	num incremented;
 	init(&incremented);
-	setNumVal(&incremented,"0");
+	setNumVal(&incremented,"100");
 	num incrementer;
 	init(&incrementer);
 	setNumVal(&incrementer,"1");
 
-	while (true) {
+	for (int i = 0; i < 100; i++) {
 		printf("\nadding together ");
 		printNum(incremented);
 		printf(" and ");
@@ -323,7 +326,7 @@ int main(){
 	init(&testNum2);
 	
 	setNumVal(&testNum,"99");
-	setNumVal(&testNum2,"2");
+	setNumVal(&testNum2,"1");
 
 	testNum = addNums(testNum,testNum2);
 	
